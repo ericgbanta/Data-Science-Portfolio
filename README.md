@@ -1,2 +1,2 @@
-# Data-Science-Portfolio
+# Eric Banta: Data Science Portfolio
 Collection of Data Science Projects
