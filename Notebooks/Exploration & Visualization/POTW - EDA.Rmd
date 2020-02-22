@@ -1,0 +1,221 @@
+---
+title: "NBA Player of the Week - EDA"
+output:
+  html_notebook:
+    toc: true
+    toc_float:
+      collapsed: false
+---
+In this notebook, we will do some exploratory data analysis and visualization on player of the weeks in the NBA. Player of the week awards are awarded to two individual players on a weekly basis. They are awared to the top performer in the Western and Eastern conferences. This dataset can be found on [Kaggle](https://www.kaggle.com/jacobbaruch/nba-player-of-the-week). First, let's get our libraries.
+```{r warning=FALSE}
+library(dplyr)
+library(ggplot2)
+library(sqldf)
+```
+
+Next, we will read in our data and take a peak at the first 6 rows.
+```{r Read in Data}
+df = read.csv("NBA_player_of_the_week.csv")
+head(df)
+```
+
+Just by quick glance, we see that Ben Simmons and Kawhi Leonard were the last ones to win this award (on January 20, 2020). Next, let's see a list of all the column names that are available in the dataset.
+```{r Show All Column Names}
+names(df)
+```
+## Data Preparation
+
+Before we start with our analysis, we need to first prepare our data for analysis. We will do this by checking for missing data, handling the missing data, editing columns to be easily digestible and potentially making new columns that will be useful in our analysis.
+
+### Missing Data
+Let's check how many nulls we have in each column of the dataset. First let's convert any blank values, " ", to NA's and then we will check for nulls.
+
+```{r}
+df[df==""] <- NA
+colSums(is.na(df))
+```
+It looks like we only have null values in one column of the dataset. Let's take a closer look at what is causing these null values in the conference column.
+```{r}
+subset(df, is.na(df$Conference))
+```
+Just by looking at this dataframe, we can see that most of the null values in the conference column are before the April 15th, 2001 date. Most of these teams are current NBA teams so mapping the correct conference should not be too difficult. Let's search our datafarame and store the teams into factors that represent their respective conference.
+```{r}
+east_teams <- (df %>% filter(Conference =='East') %>% distinct(Team))$Team
+west_teams <- (df %>% filter(Conference =='West') %>% distinct(Team))$Team
+```
+
+Now that we have our teams in each conference, let's map in the missing conferences using the two different lists.
+
+```{r}
+# First let's create a lookup data frame
+east_df <- data.frame(matrix(unlist(east_teams), nrow=19, byrow=T),stringsAsFactors=FALSE)
+east_df$New_Conference <- "Eastern"
+colnames(east_df)[1] <- "Team"
+
+west_df <- data.frame(matrix(unlist(west_teams), nrow=17, byrow=T),stringsAsFactors=FALSE)
+west_df$New_Conference <- "Western"
+colnames(west_df)[1] <- "Team"
+
+east_west_df <- rbind(east_df, west_df)
+
+# Now let's pull in the updated conference
+df <- merge.data.frame(df, east_west_df, by.x = "Team", by.y = "Team")
+```
+Let's check how many nulls we have now using our new conference column.
+```{r}
+subset(df, is.na(df$New_Conference))
+```
+
+No nulls! Now that we have eliminated nulls from this column, we can move on. 
+### Re-mapping Columns
+Later in this analysis, we are going to take a look at positions. Before we get into the analysis, it is important to make sure this column is ready for analysis. Let's take a look at the different positions that are in our dataset and make adjustments as needed.
+
+```{r}
+unique(df['Position'])
+```
+Now that we see all the unique positions, let's map this into a simpler position system. For example, we are going to group G-F into GF and F-C into FC. We are also going to roll up guards into the guard bucket and forwards to the forward bucket.
+
+```{r}
+og_pos <- list("PG","SG","F","C" ,"SF","PF","G","FC","GF","F-C","G-F")
+new_pos <- list("Guard", "Guard", "Forward", "Center", "Forward", "Forward", "Guard", "Forward-Center", "Guard-Forward", "Forward-Center", "Guard-Forward")
+
+# Create Lookup DataFrame
+pos_mapping <- do.call(rbind, Map(data.frame, Position=og_pos, New_Position=new_pos))
+head(pos_mapping, 10)
+```
+
+Now that we have our lookup table of the new position mapping, we are going to join this with our original data frame. We will do this using a package called sqldf that will allow us to use some sql syntax to do merging in R.
+
+```{r}
+# Perform Inner Join
+df <- sqldf("select *
+             from df
+             join pos_mapping using(Position)")
+head(df)
+```
+
+
+## Exploratory Data Analysis
+Since we spent some time cleaning the Conference column, let's take a look at the distribution of the award by conference and average age.
+
+### Average Age of Player of the Week by Conference
+First let's group our dataframe by Conference, Year and Average Age.
+```{r}
+avg_age <- df %>%
+  group_by(New_Conference, Season.short) %>%
+  summarise(avg_age=mean(Age))
+
+head(avg_age)
+```
+Now that we have our data grouped, let's plot this so we can compare the trend of average age. Since we want to do a population pyramid type chart, we need to turn all of the values in one conference to negative values.
+```{r}
+# Transform Dataframe to turn West values into negative
+avg_age <- transform(avg_age, avg_age_2=ifelse(New_Conference=="Western", avg_age*-1, avg_age))
+
+ggplot(avg_age, aes(x = Season.short, y = avg_age_2, fill = New_Conference)) +   # Fill column
+                              geom_bar(stat = "identity", width = .6) +   # draw the bars
+                              scale_x_continuous(breaks = seq(1985,2020,by=5)) +
+                              scale_y_continuous(breaks=seq(-35,35,5),labels=abs) +
+                              coord_flip()
+```
+
+It looks like the only time average age exceeded 30 was in 1997 in the Western Conference. Additionally, the average age for a majority of the seasons on both the West and East was between 25 and 30. It looks like we have team data available - this might be interesting to see which teams have had the most amount of players win this award.
+
+### Player of the Week Counts by Team
+First, let's see a dataframe view of the top 5 teams.
+```{r Show Players by Team}
+by_team <- df %>% count(Team) %>% # Group by Team using dplyr
+           arrange(desc(n))
+by_team <- rename(by_team, 'Number of Players' = n) # Rename column
+head(by_team, 5)  # Show Top 5
+```
+It looks like the Lakers have the most players to have won a Player of the Week award. It may be interesting to see which players from the Lakers compose that sum and see if the gap between them and the rest of the team can be attributed to one or two players. Before we move forward, let's turn this dataframe into a bar chart.
+
+```{r Plot Top 5 Teams}
+by_team_10 <- head(by_team, 5)
+by_team_10_lst <- by_team_10[['Team']]
+
+
+by_team_plt <- ggplot(filter(df, Team %in% by_team_10_lst), aes(Team))
+by_team_plt + geom_bar() +
+  geom_text(stat='count',aes(label=..count..),vjust=-.5)
+```
+
+### Player of the Week Counts - Los Angeles Lakers
+```{r}
+laker_total = 87
+
+lakers = df %>% select(everything()) %>% filter(Team == "Los Angeles Lakers")
+lakers <- lakers %>% count(Player) %>% # Group by Player using dplyr
+           arrange(desc(n))
+lakers <- rename(lakers, 'Number_of_POTW_Awards' = n) # Rename column
+lakers <- transform(lakers, Percent_of_Total = Number_of_POTW_Awards / laker_total)
+lakers[, "Percent_of_Total"] <- round(lakers[, "Percent_of_Total"], digits = 2) # round to 2 decimals
+head(lakers, 5)
+```
+Here we can see that Kobe Bryant makes up for most of the Lakers Player of the Week awards, with about 38% of the total being attributed to him. This makes sense since Kobe Bryant played 20 seasons with the Los Angeles Lakers. Let's graph this, but using a horizontal bar chart instead.
+```{r}
+lakers_5 <- head(lakers, 5)
+lakers_5_lst <- lakers_5[['Player']]
+  
+lakers_plt <- ggplot(filter(df, Player %in% lakers_5_lst, Team == "Los Angeles Lakers"), aes(Player))
+lakers_plt + geom_bar() + coord_flip() +
+  geom_text(stat='count',aes(label=..count..),hjust=-.5)
+```
+Now that we have plotted some bar charts for counts, let's take a look at the trend of player of the week awards by position over time.
+
+### Player of the Week Trend by Position
+Before we jump into this analysis, let's take a look at overall awards won by position.
+```{r}
+by_position <- df %>% count(New_Position) %>% # Group by Position using dplyr
+           arrange(desc(n))
+by_position <- rename(by_position, 'Number of Players' = n) # Rename column
+head(by_position, 10)  # Show Top 10
+```
+It looks like Guards and Forwards make up a majority of this award. This makes sense since we are rolling Point Guards/Shooting Guards to the guard position and Small Forwards/Power Forwards to the Forward Position. Let's use the sql library to do a basic group by.
+
+```{r}
+by_position_year <- sqldf("select New_Position, [Season.short], count(Player) as NumberAwards
+             from df
+             group by New_Position, [Season.short]
+             order by [Season.short] asc, NumberAwards desc")
+
+head(by_position_year)
+```
+Now let's plot this trend over time with a line chart!
+
+```{r}
+ggplot(by_position_year, aes(x=Season.short, y=NumberAwards, col=New_Position)) + geom_line()
+```
+Here we can see that the guard position is actually trending down with this award and reached it's peak in the mid 2010's. This is a surprising finding with so many good guards in the NBA currently. In their place, we are seeing a gradual increase in the amount of awards that Forwards are winning.
+
+### Impact of Height & Weight
+Now that we have looked at all teams, a specific team and done some trend analysis on positions - the last piece of our analysis will be taking a look at the impact of height and weight on winning this award. First, we need to query our dataframe to get a list of players, their height/weight and also the amount of times they have won the award.
+
+```{r}
+player_height_weight = sqldf("select Player, [Height.CM], Weight, New_Position, count(Player) as NumAwards
+                              from df
+                              group by Player, [Height.CM], Weight, New_Position
+                              order by NumAwards desc")
+
+head(player_height_weight)
+```
+Here we can see that LeBron James has won the most awards from any other player. Almost doubling Kobe Bryant's number. Allen Iverson is also another interesting player to appear on the top of this list and is also the shortest and lightest player in the top 6. Another interesting observation is that there is no Center that appears in the top 6 list. Now that we have this data frame prepared, let's try to get some correlation insight by plotting.
+
+```{r}
+ggplot(player_height_weight, aes(x=Weight, y=Height.CM)) + 
+  geom_point(aes(col=New_Position, size=NumAwards)) + 
+  geom_smooth(method="loess", se=F) +
+  geom_text(data=head(player_height_weight),
+            aes(Weight,Height.CM,label=Player)) +
+  labs(subtitle="By Height & Weight", 
+       y="Height (cm)", 
+       x="Weight (lb)", 
+       title="Player of the Week Awards Distribution")
+```
+It does look like there is an upward trend with the amount of player of the week awards a player wins and an increased height/weight. However this trend is not as drastic and begins to taper off around the 230 pound and 205 cm coordinate. Allen Iverson is definitely an anomaly with the amount of player of the week awards he has won, considering his height and weight. However, many NBA players proclaim that Iverson is "pound for pound" one of the best to ever play the game - and this could make that argument stronger. The most interesting observation is the overlap between Michael Jordan and Kobe Bryant. These two players are always packaged together in basketball conversations because of their similarity in play style. It is interesting to see that their Height/Weight and Player of the Week awards distribution is almost identical.
+
+## Summary
+In this notebook, we were able to do some Exploratory Data Analysis and Visualization on NBA Player of the Week statistics. We were able to find that players from the Los Angeles Lakers have won the award the most. From this subset, Kobe Bryant has won the award the most out of any Laker player. However, Kobe is not the player that has received this award the most - this accolade goes to LeBron James. 
+
+Additionally, we performed trend analysis by position and found that guards are trending down when it comes to this award. Conversely, we are seeing a trend upwards for forwards with players like Giannis Antetokounmpo, Kawhi Leonard, and LeBron James in the league. Lastly, we were able to visualize a scatterplot with density measures based on height and weight. We saw that there is a positive relationship between number of awards and height/weight, but the intensity of this relationship begins to flatten at a certain point.
