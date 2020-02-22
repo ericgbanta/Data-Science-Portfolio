@@ -8,6 +8,12 @@ Used [Kaggle Dataset](https://www.kaggle.com/terminus7/pokemon-challenge) to bui
 * [GitHub Notebook](https://github.com/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Classification/Pokemon_Battle_Prediction.ipynb)
 * [NBViewer](https://nbviewer.jupyter.org/github/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Classification/Pokemon_Battle_Prediction.ipynb)
 
+## EDA & Visualization
+### NBA Player of the Week
+Used [Kaggle Dataset](https://www.kaggle.com/jacobbaruch/nba-player-of-the-week) to do some exploratory data analysis on the player of the week award in the NBA. Performed generic data cleansing and data manipulation tasks prior to analyzing data. Utilized dplyr for data manipulation, ggplot2 for data visualization and sqldf to showcase data manipulation skills using sql syntax.
+* __Main Tech Used:__ R, Dplyr, Ggplot2, Sql (via sqldf)
+* [GitHub Notebook](https://github.com/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Exploration%20%26%20Visualization/POTW%20-%20EDA.Rmd)
+* [RPubs](https://rpubs.com/ericbanta/nba_potw_eda)
 
 ## NLP Projects
 ### Star Wars Script Analysis
