@@ -18,6 +18,8 @@ Used [Kaggle Dataset](https://www.kaggle.com/jacobbaruch/nba-player-of-the-week)
 ### UFC Fight Location
 Used [Kaggle Dataset](https://www.kaggle.com/rajeevw/ufcdata) to perform data visualization on where UFC Fights have happened from 1993 to June 2019. Utilized two libraries to create heatmaps for the location of all UFC Fights and also created heatmaps for a specific UFC fighter with the most fights in this time period. Gmplot and Plotly were the libraries used to create the heatmap visualizations.
 * __Main Tech Used:__ Python, Pandas, Numpy, Gmplot, Plotly
+* [GitHub Notebook](https://github.com/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Exploration%20%26%20Visualization/mma_fight_visualization.ipynb)
+* [NBViewer](https://nbviewer.jupyter.org/github/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Exploration%20%26%20Visualization/mma_fight_visualization.ipynb)
 
 ## NLP Projects
 ### Star Wars Script Analysis
