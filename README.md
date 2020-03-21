@@ -15,6 +15,10 @@ Used [Kaggle Dataset](https://www.kaggle.com/jacobbaruch/nba-player-of-the-week)
 * [GitHub Notebook](https://github.com/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Exploration%20%26%20Visualization/POTW%20-%20EDA.Rmd)
 * [RPubs](https://rpubs.com/ericbanta/nba_potw_eda)
 
+### UFC Fight Location
+Used [Kaggle Dataset](https://www.kaggle.com/rajeevw/ufcdata) to perform data visualization on where UFC Fights have happened from 1993 to June 2019. Utilized two libraries to create heatmaps for the location of all UFC Fights and also created heatmaps for a specific UFC fighter with the most fights in this time period. Gmplot and Plotly were the libraries used to create the heatmap visualizations.
+* __Main Tech Used:__ Python, Pandas, Numpy, Gmplot, Plotly
+
 ## NLP Projects
 ### Star Wars Script Analysis
 Used Star Wars scripts from the Orignial Trilogy to perform natural language processing and sentiment analysis. Utilized Bag of Words and Sentiment Intensity approach to classify Luke Skywalker lines as positive, neutral or negative.
