@@ -21,6 +21,11 @@ Used [Kaggle Dataset](https://www.kaggle.com/rajeevw/ufcdata) to perform data vi
 * [GitHub Notebook](https://github.com/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Exploration%20%26%20Visualization/mma_fight_visualization.ipynb)
 * [NBViewer](https://nbviewer.jupyter.org/github/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Exploration%20%26%20Visualization/mma_fight_visualization.ipynb)
 
+### MCU Demographic Survey 2019 Visualization
+Sourced data from [r/MarvelStudios 2019 Demographic Survey](https://www.reddit.com/r/marvelstudios/comments/doz727/demographic_survey_results_2019/) to perform quick data visualization using Tableau Public. Compiled dashboards and worksheets into a five-page Story to analyze survey results. Key findings include demographic breakdowns, top heroes, top villains, top rated movie and most anticipated movies and characters. This visualization will not be located in this GitHub repo, but will be available to view on Tableau Public.
+* __Main Tech Used:__ Tableau Public, Dashboards, Story, Calculated Fields & Filters
+* [Tableau Dashboard](https://public.tableau.com/profile/eric4224#!/vizhome/MCUDemographicSurvey/MCUSurveyVisualization)
+
 ## NLP Projects
 ### Star Wars Script Analysis
 Used Star Wars scripts from the Orignial Trilogy to perform natural language processing and sentiment analysis. Utilized Bag of Words and Sentiment Intensity approach to classify Luke Skywalker lines as positive, neutral or negative.
