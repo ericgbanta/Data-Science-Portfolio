@@ -1,6 +1,13 @@
 # Eric Banta: Data Science Portfolio
 Collection of Data Science Projects
 
+## Regression Projects
+### Predicting the Age of Abalone Fish
+Used [UCI Machine Learning Dataset](https://archive.ics.uci.edu/ml/datasets/abalone) to compare the accuracy of different regression models at predicting the age of abalone shellfish. Compared Linear Regression, Polynomial Regression & Random Forest Regression models. For Random Forest - hyperparameter tuning was executed to find the best parameters.
+* __Main Tech Used:__ Python, Scikit-Learn, Pandas, Matplotlib, Hyperparameter Tuning
+* [GitHub Notebook](https://github.com/ericgbanta/Data-Science-Portfolio/)
+* [NBViewer](https://nbviewer.jupyter.org/github/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Classification/Pokemon_Battle_Prediction.ipynb)
+
 ## Classification Projects
 ### Predicting Pokemon Battles
 Used [Kaggle Dataset](https://www.kaggle.com/terminus7/pokemon-challenge) to build a model that predicts the winner between two pokemon. Utilized basic pre processing techniques, encoding, correlation analysis, feature selection and classification model comparison. After model comparison, implemented a model using Random Forest Classification.
