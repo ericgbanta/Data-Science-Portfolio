@@ -5,8 +5,8 @@ Collection of Data Science Projects
 ### Predicting the Age of Abalone Fish
 Used [UCI Machine Learning Dataset](https://archive.ics.uci.edu/ml/datasets/abalone) to compare the accuracy of different regression models at predicting the age of abalone shellfish. Compared Linear Regression, Polynomial Regression & Random Forest Regression models. For Random Forest - hyperparameter tuning was executed to find the best parameters.
 * __Main Tech Used:__ Python, Scikit-Learn, Pandas, Matplotlib, Hyperparameter Tuning
-* [GitHub Notebook](https://github.com/ericgbanta/Data-Science-Portfolio/)
-* [NBViewer](https://nbviewer.jupyter.org/github/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Classification/Pokemon_Battle_Prediction.ipynb)
+* [GitHub Notebook](https://github.com/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Regression/Fish%20Age%20Prediction.ipynb)
+* [NBViewer](https://nbviewer.jupyter.org/github/ericgbanta/Data-Science-Portfolio/blob/master/Notebooks/Regression/Fish%20Age%20Prediction.ipynb)
 
 ## Classification Projects
 ### Predicting Pokemon Battles
